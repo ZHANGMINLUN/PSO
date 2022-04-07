@@ -6,39 +6,34 @@ using System.Threading.Tasks;
 
 namespace PSO
 {
-
-
     class PSO
     {
+        // agents, Velocity, X, each loss value in PSO
         int N;
         double[][] V;
         public double[][] X;
         double[] loss;
 
-        int Index;
-        int opIndex;
-
-        static int ini = 40;
-        public double lossBest = ini * ini;
-        public double localBest;
-        double[] pBest;
-        double[] gBest;
-
-        public int Smax = ini;
-        public int Smin = -ini;
+        // boundary of Velocity & X
         public double Vmax = Math.Sqrt(ini);
         public double Vmin = -Math.Sqrt(ini);
         double Xmax = ini;
         double Xmin = -ini;
 
-        double w = 0.5;
-        double wmax = 1; double wmin = 0.1;
-        double c1 = 2;
-        double c2 = 2;
+        //boundary setting
+        static int ini = 40;
+        public int Smax = ini;
+        public int Smin = -ini;
+        public double lossBest = ini * ini;
+        public double localBest;
 
+        // global minimun & local minimum
+        double[] pBest;
+        double[] gBest;
+
+        
         public int iteration = 0;
-        int itmax = 50;// ini * ini;
-
+        int Index;
         Random r;
 
         public PSO(int N)
@@ -58,6 +53,7 @@ namespace PSO
             loss = new double[N];
         }
 
+        
         public void initialize()
         {
             for (int i = 0; i < N; i++)
@@ -68,10 +64,20 @@ namespace PSO
                     V[i][j] = r.Next((int)Vmin, (int)Smax);
                 }
             }
-            getLoss();
+            getLossforEachAgent();
             gBest[0] = X[Index][0]; gBest[1] = X[Index][1];
         }
 
+        //optimize for each iteration
+        public void optimize()
+        {
+            getV();
+            getX();
+            getLossforEachAgent();
+            iteration++;
+        }
+
+        //Ackley function
         public double f(double[] input)
         {
             return -20 * Math.Exp(-0.2 * Math.Sqrt(0.5 * (input[0] * input[0] + input[1] * input[1])))
@@ -79,7 +85,8 @@ namespace PSO
                 + 20 + Math.Exp(1);
         }
 
-        public void getLoss()
+
+        public void getLossforEachAgent()
         {
             for (int i = 0; i < N; i++) loss[i] = f(X[i]);
 
@@ -95,8 +102,13 @@ namespace PSO
             }
         }
 
+        // calculate Velocity of each particle
         public void getV()
         {
+            double w = 0.5;
+            double c1 = 2;
+            double c2 = 2;
+
             //w = w - iteration / itmax;
             for (int i = 0; i < N; i++)
             {
@@ -117,6 +129,7 @@ namespace PSO
             }
         }
 
+        // calculate X of each particle
         public void getX()
         {
             for (int i = 0; i < N; i++)
@@ -125,14 +138,5 @@ namespace PSO
                 X[i][1] = X[i][1] + V[i][1];
             }
         }
-
-        public void optimize()
-        {
-            getV();
-            getX();
-            getLoss();
-            iteration++;
-        }
-
     }
 }
